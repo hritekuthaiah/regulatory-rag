@@ -109,6 +109,20 @@ Version control is a skill Hritek is deliberately building, so:
 - Every few sessions, step back and ask: "Based on what we've covered, here's what I think is still missing from your preparation. Want to add any of it?"
 - Keep suggestions short and optional. Offer them, then let Hritek choose. Don't derail the current stage.
 
+## CI/CD & Docker: add only when the project needs it
+Hritek wants hands-on, interview-defensible experience with CI/CD (GitHub Actions) and Docker, but only where the project genuinely needs them. Hritek can't yet judge when that is, so **at the end of every stage Claude assesses it and says so explicitly**: "CI/CD/Docker check: needed now / not yet, because…". When something is needed, teach it in small steps tied to the reason, never as a copied template.
+
+Likely triggers to check against (not a commitment):
+| Trigger | What it would justify |
+|---|---|
+| First pytest tests exist | CI v1: run tests on every push/PR |
+| Codebase grows across several modules | CI v2: add linting |
+| Eval set exists (Stage 11) | CI v3: run a quick eval on PRs to catch quality regressions |
+| FastAPI service exists (Stage 12) | Docker v1: containerise and run locally |
+| Deploy package exceeds Lambda's ~250 MB zip limit, or deployment starts (Stage 14) | Docker v2 + CD: build image in CI, deploy on merge to main |
+
+Interview questions to prepare for once built: what a failed PR check blocks; Docker image vs zip for Lambda; where AWS keys live; how to shrink an image; CI vs CD in this setup.
+
 ## Repo map
 - `ingest/`: downloading and parsing SEBI circulars
 - `pipeline/`: chunking, embeddings, indexing, retrieval, reranking, generation, grounding
