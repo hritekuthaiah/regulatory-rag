@@ -32,3 +32,6 @@ chroma_db/
 .DS_Store
 .vscode/
 .idea/
+
+# Downloaded datasets (re-downloadable; checksums recorded in docs/decisions.md)
+data/
