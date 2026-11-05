@@ -32,3 +32,15 @@ One entry per decision, newest at the bottom. Copy the template below for each n
 - **Data version:** AIKosh / Hugging Face `opnsrcntrbtrian/sebi-circulars` v2026.07 — 728 records (dataset card says 705). SHA-256: corpus.jsonl `61a6201b67162144c09220d621a8461faeb77c12bff4d181d415a00c4676da4b`, lineage.jsonl `3aa393f22cf8e03965811f86a7b08eb5d41f5713c1e81f23d9f068f82e2ea725`, eval.jsonl `f01d877949d12cfd59f0104d45cf800400949e6fce703e96cec052b003e26eb9`.
 - **Cleaning steps this implies:** (1) remove "Page X of Y" footers anywhere; (2) re-join lines broken mid-sentence; (3) squash stray spaces/blank lines; (4) count clauses only after "Subject:"; (5) drop garbled Hindi lines; tables (6, 7) deferred.
 - **Date:** 2026-11-05
+
+### Decision: Re-extract tables now, for master circulars only (revises the table part above)
+- **Stage:** 1 — Data ingestion & parsing
+- **Options considered:**
+  - Keep deferring tables until eval questions show they fail: least work now; risks building chunking around broken tables.
+  - Fix tables now for master circulars only: pdfplumber on their original PDFs; master circulars hold most of the rule tables.
+  - Fix tables now for all 728 circulars: most complete; most downloads, and most tables outside master circulars are blank forms.
+- **Chosen:** Fix tables now, master circulars only (133 documents).
+- **Why:** A hand check of ~47 tables in 6 sample PDFs found ~19 rule tables (fees, limits, deadlines, applicability), ~16 blank forms, and ~12 false tables (boxed paragraphs). The rule tables, which carry high-value compliance answers, were concentrated in master circulars.
+- **Known risks:** pdfplumber detects false tables, so a filter is needed before replacing any text; some SEBI pages expose no PDF link.
+- **Measured result:** Pending. Eval set will include ~5 table-answer questions to confirm the fix.
+- **Date:** 2026-11-05
