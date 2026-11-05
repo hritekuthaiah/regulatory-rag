@@ -4,7 +4,7 @@ Mark one status per stage with `x`. A stage only moves to **Interview Ready** af
 
 | # | Stage | Not Started | Learning | Practicing | Comfortable | Interview Ready | Last updated |
 |---|---|:-:|:-:|:-:|:-:|:-:|---|
-| 1 | Data ingestion & parsing | | x | | | | 2026-11-05 |
+| 1 | Data ingestion & parsing | | | x | | | 2026-11-05 |
 | 2 | Cleaning & metadata | x | | | | | |
 | 3 | Chunking | x | | | | | |
 | 4 | Embeddings | x | | | | | |

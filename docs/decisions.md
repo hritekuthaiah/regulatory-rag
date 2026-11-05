@@ -44,3 +44,23 @@ One entry per decision, newest at the bottom. Copy the template below for each n
 - **Known risks:** pdfplumber detects false tables, so a filter is needed before replacing any text; some SEBI pages expose no PDF link.
 - **Measured result:** Pending. Eval set will include ~5 table-answer questions to confirm the fix.
 - **Date:** 2026-11-05
+
+### Decision: Defer merging re-extracted tables into the text (compressed timeline)
+- **Stage:** 1 — Data ingestion & parsing
+- **Options considered:**
+  - Merge filtered pdfplumber tables into master-circular text now: completes the earlier table decision; costs about one more session.
+  - Defer the merge; keep the three table-filter rules built and tested; decide from eval results.
+- **Chosen:** Defer the merge.
+- **Why:** Interview expected in December 2026, project target ~2 weeks. The filter rules are done and measured, so the remaining merge can be added later if the eval set's table questions fail. Most rule-table rows already survive on one line in the dataset text (210/240 in the 9-PDF sample, lenient check).
+- **What was built:** `ingest/tables.py` — Rule 1 (at least 2 text columns), Rule 2 (≥30% of cells read like clauses), Rule 3 (per page: ≥50% of 3+ clause lines inside table borders). Rule 3 cut-off measured on 12,392 pages of 93 master circulars: pages split into ~0% (6,132) and ~100% (1,267), quietest point 40–50%. Spot-check of 10 skipped pages: 9 correct, 1 real table skipped (keeps dataset text).
+- **Measured result:** Pending — eval set table questions (Stage 11).
+- **Date:** 2026-11-05
+
+### Decision: Cleaning rules for the dataset text
+- **Stage:** 1 — Data ingestion & parsing
+- **Options considered:** for hyphen line breaks — drop the hyphen ("regu-lation" → "regulation"), keep it, or decide per word from corpus word counts. For Hindi — drop whole lines with Devanagari, or strip Devanagari and keep the English left on the line.
+- **Chosen:** Remove `(cid:NN)` codes and "Page X of Y" anywhere; strip Devanagari (plus its orphan brackets/commas) but keep English on the same line; squash spaces; re-join wrapped lines unless the previous line ends a sentence, is a bare `CIRCULAR` heading, or the next line starts a clause / letter-structure line (To, Dear, Sub:, Annexure); keep hyphens when joining.
+- **Why:** Of 3,492 hyphen line breaks, ~92% are real hyphenated words (sub-paragraph, non-regulatory); true word splits are rare because the source is Word documents. Bilingual lines often carry the English version on the same line, so dropping whole lines would lose English text.
+- **Measured result (all 728 circulars):** footers 13,698 → 0; `(cid:)` codes 170 → 0; Devanagari runs 17,316 → 0; lines 649,715 → 182,100 (wrapped lines re-joined); clause-start lines 113,963 → 113,961; English words 5,107,661 → 5,080,095 (−27,566 ≈ the two words "Page"/"of" in each removed footer, so no rule text lost). 49 tests pass.
+- **Known limitation:** ~3 bilingual circulars with a side-by-side Hindi/English layout (e.g. SEBI/HO/ITD-1/ITD_CSC_EXT/P/CIR/2024/113) have the two columns interleaved line by line in the dataset text; fixing needs re-extracting the English column from the PDF. Deferred.
+- **Date:** 2026-11-05
