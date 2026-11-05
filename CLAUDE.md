@@ -84,7 +84,24 @@ Each basic-RAG limitation becomes a feature we build AND measure, added one at a
 - **Corpus:** SEBI circulars only (sebi.gov.in or the AIKosh SEBI circulars dataset). SEC is a later stretch goal.
 - **No LangChain/LlamaIndex** for core pipeline logic (the resume says "from scratch"). Small focused libraries are fine (rank_bm25, a cross-encoder model).
 - **Stack:** Python, FastAPI, OpenAI API, Chroma, pytest, AWS Lambda + S3.
-- **Time:** Hritek is interning at Bosch until 31 Dec 2026. Sessions are evenings/weekends; keep each session to one stage.
+- **Time:** Hritek is interning at Bosch until 31 Dec 2026. Sessions are evenings/weekends. **Interview expected in December 2026; target: project done within ~2 weeks of 2026-11-05.** Follow the compressed plan below.
+
+## Compressed plan (agreed 2026-11-05)
+Depth is cut, not resume claims. Teach each stage as a short technique menu (what exists, when to use it, limitations), not a long exploration. Claude drafts code in bigger pieces, still explained. Explain-back and interview Q&A stay.
+
+| Session | Stages | Build |
+|---|---|---|
+| 1 | 1 + 2 | Finish cleaning + basic metadata; close Stage 1 (PR to main) |
+| 2 | 3 | Clause-aware chunking |
+| 3 | 4 + 5 | Embeddings + Chroma index |
+| 4 | 11 (early) + 6 | Build eval set (~25 questions incl. ~5 table questions), then BM25 + dense + hybrid; first numbers |
+| 5 | 8 | Reranking, measured before/after |
+| 6 | 9 + 10 | Answers with citations + refusal on weak evidence |
+| 7 | 12 + CI | FastAPI + pytest + GitHub Actions |
+| 8 | 13 + 14 | Token/cost logging + Docker + Lambda/S3 deploy |
+| 9 | Review | Mock interview over the whole project |
+
+Kept light: Stage 7 (query processing) taught as a menu only; Stage 15 (maintenance) covered by the supersession flag in Stage 2 metadata plus "how I'd do it" answers; merging re-extracted tables into text deferred until the eval set shows table questions failing.
 - **Honesty:** nothing goes in the README or resume unless it's built and measured.
 
 ## Git & GitHub
