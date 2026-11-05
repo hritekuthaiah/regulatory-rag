@@ -5,6 +5,7 @@ from ingest.tables import (
     clause_cell_share,
     count_text_columns,
     has_two_text_columns,
+    is_clause_grid_page,
     looks_like_clause,
     looks_like_clause_grid,
 )
@@ -128,3 +129,68 @@ def test_real_table_with_one_sentence_cell_is_kept():
 def test_clause_share_of_empty_table_is_zero():
     assert clause_cell_share([]) == 0.0
     assert clause_cell_share(EMPTY_BOX) == 0.0
+
+
+# --- Rule 3: pages whose clause text sits inside table borders ---
+
+def line(text, top, x0=72, x1=520):
+    """A text line shaped like pdfplumber's extract_text_lines() output."""
+    return {"text": text, "x0": x0, "x1": x1, "top": top, "bottom": top + 10}
+
+
+GRID_BOX = (60, 100, 540, 700)  # one big table outline covering most of the page
+
+GRIDDED_PAGE = [  # SEBI/HO/CFD/PoD-1/P/CIR/2024/072, page 17 style: clauses inside the grid
+    line("11.1.5. Employees should be directed that any", 120),
+    line("them either in their official mail/personal mail", 135),
+    line("11.1.6. Communication with media shall be routed", 200),
+    line("11.2. The BTIs shall maintain records of all", 300),
+    line("a. complaints received from investors", 400),
+]
+
+NORMAL_PAGE = [
+    line("4. In accordance with Regulation 14 (2) of FVCI Regulations, 2000, Custodian shall be", 120),
+    line("responsible for timely submission of the report.", 135),
+    line("5. The report for the quarter ending September 30, 2024 shall be", 200),
+    line("6. This circular is issued in exercise of powers conferred under Section 11", 300),
+]
+
+
+def test_gridded_page_is_flagged():
+    assert is_clause_grid_page(GRIDDED_PAGE, [GRID_BOX])
+
+
+def test_normal_page_without_tables_is_not_flagged():
+    assert not is_clause_grid_page(NORMAL_PAGE, [])
+
+
+def test_page_with_a_real_table_beside_normal_clauses_is_not_flagged():
+    # Clauses at the top of the page, a fee table below them. The table's lines aren't clause lines.
+    fee_box = (60, 400, 540, 500)
+    page = NORMAL_PAGE + [line("Individual and Partnership Firm  Rs. 2,000  Rs. 3,000", 420),
+                          line("Body Corporate  Rs. 20,000  Rs. 30,000", 450)]
+    assert not is_clause_grid_page(page, [fee_box])
+
+
+def test_fewer_than_three_clause_lines_is_never_flagged():
+    page = [line("1. Applicability of this circular to all intermediaries", 120),
+            line("2. Effective date of the provisions", 200)]
+    assert not is_clause_grid_page(page, [GRID_BOX])  # 100% inside, but only 2 clause lines
+
+
+def test_exactly_half_inside_is_flagged():
+    page = [line("1. First clause inside the grid", 120), line("2. Second clause inside the grid", 200),
+            line("3. Third clause below the grid", 750), line("4. Fourth clause below the grid", 800)]
+    assert is_clause_grid_page(page, [(60, 100, 540, 700)])
+
+
+def test_just_under_half_inside_is_not_flagged():
+    page = [line("1. Inside the grid", 120), line("2. Below", 750), line("3. Below", 800)]
+    assert not is_clause_grid_page(page, [(60, 100, 540, 700)])  # 1 of 3 = 33%
+
+
+def test_line_counts_as_inside_by_its_middle():
+    # A line that starts just left of the box but whose middle is inside counts as inside.
+    box = (100, 100, 540, 700)
+    page = [line(f"{n}. Clause text that starts a little left of the grid line", 120 + 50 * n, x0=90) for n in range(1, 4)]
+    assert is_clause_grid_page(page, [box])
